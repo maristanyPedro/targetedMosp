@@ -65,7 +65,7 @@
             auto end_bda = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> duration_bda = end_bda - start_bda;
             sol_bda_forward.duration = duration_bda.count();
-            sol_bda_forward.print("MDA-STAR");
+            sol_bda_forward.print("T-MDA");
         }
 
     //    CALLGRIND_STOP_INSTRUMENTATION;
