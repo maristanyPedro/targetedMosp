@@ -51,33 +51,33 @@
     //
 
         {
-            NodeInfoContainer expander_bda(G); //For the search!
+            NodeInfoContainer nic_t_mda(G);
 
-            Preprocessor preprocessor_bda(G);
-            preprocessor_bda.run(expander_bda);
-            auto start_bda = std::chrono::high_resolution_clock::now();
-            Solution sol_bda_forward(graphName, sourceId, targetId);
-            TargetedMDA bda{G, expander_bda, preprocessor_bda};
-            bda.run(sol_bda_forward);
+            Preprocessor preprocessor_t_mda(G);
+            preprocessor_t_mda.run(nic_t_mda);
+            auto start_t_mda = std::chrono::high_resolution_clock::now();
+            Solution sol_t_mda(graphName, sourceId, targetId);
+            TargetedMDA t_mda{G, nic_t_mda, preprocessor_t_mda};
+            t_mda.run(sol_t_mda);
 
             //
             //
-            auto end_bda = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> duration_bda = end_bda - start_bda;
-            sol_bda_forward.duration = duration_bda.count();
-            sol_bda_forward.print("T-MDA");
+            auto end_t_mda = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> duration_t_mda = end_t_mda - start_t_mda;
+            sol_t_mda.duration = duration_t_mda.count();
+            sol_t_mda.print("T-MDA");
         }
 
     //    CALLGRIND_STOP_INSTRUMENTATION;
     //    CALLGRIND_DUMP_STATS;
 
-        NodeInfoContainer expander_mda(G); //For the search!
+        NodeInfoContainer nic_mda(G); //For the search!
 
         Preprocessor preprocessor_mda(G);
-        preprocessor_mda.run(expander_mda);
+        preprocessor_mda.run(nic_mda);
         auto start_mda = std::chrono::high_resolution_clock::now();
         Solution sol_mda(graphName, sourceId, targetId);
-        MDA mda{G, expander_mda, preprocessor_mda};
+        MDA mda{G, nic_mda, preprocessor_mda};
         mda.run(sol_mda);
 
         auto end_mda = std::chrono::high_resolution_clock::now();
