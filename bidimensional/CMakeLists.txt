@@ -1,0 +1,39 @@
+cmake_minimum_required(VERSION 3.10)
+project(bi_uni_dijkstra_bucket LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 14)
+
+find_package(OpenMP REQUIRED)
+
+include_directories(datastructures/includes)
+include_directories(graph/includes)
+include_directories(preprocessing/includes)
+include_directories(search/includes)
+
+if (MSVC)
+    # warning level 4 and all warnings as errors
+    add_compile_options(/W4 /WX)
+else()
+    # lots of warnings and all warnings as errors
+    #add_compile_options(-Wall -Wextra -pedantic -fopenmp -Wpadded)
+    #add_compile_options(-Wall -Wextra -g -pedantic -fopenmp -pthread -Wpadded)
+    add_compile_options(-std=c++14 -O3 -Winline -Wall -Wextra -pedantic -fopenmp -pthread)
+endif()
+
+
+add_executable(bi_uni_dijkstra_bucket
+        datastructures/includes/HeapNew.h
+        datastructures/includes/Buckets_BDA.h
+        datastructures/includes/Label.h
+        datastructures/includes/Label_Buckets.h
+        graph/includes/graph.h
+        graph/src/graph.cpp
+        preprocessing/includes/LexDijkstra.h
+        preprocessing/includes/Preprocessor.h
+        preprocessing/src/Preprocessor.cpp
+        search/includes/Solution.h
+        search/src/BOA.cpp
+        search/includes/BDA.h
+        src/main.cpp
+        datastructures/src/NodeInfoContainer.cpp)
+target_link_libraries(bi_uni_dijkstra_bucket PRIVATE OpenMP::OpenMP_CXX)
