@@ -28,14 +28,14 @@ struct Solution {
 
 
 //template <typename >
-//void printSolutions(const NodeInfoContainer& backwardExpander, bool mainOptIndex, const std::list<>) {
-//    auto getIncomingArcs = this->backwardExpander.forward ?
+//void printSolutions(const NodeInfoContainer& backwardNodeInfos, bool mainOptIndex, const std::list<>) {
+//    auto getIncomingArcs = this->backwardNodeInfos.forward ?
 //                           [](const Graph& graph, const Node& n) -> const Neighborhood & {return graph.outgoingArcs(n);} :
 //                           [](const Graph& graph, const Node& n) -> const Neighborhood & {return graph.incomingArcs(n);};
 //    for (const Label_BOA* solution : this->solutions) {
 //        std::vector<std::pair<Node, Info<CostType>>> path;
 //        //From this node until the target, the path follows the preprocessing path.
-//        const NodeInfo& lastSearchNode = this->backwardExpander.getInfo(solution->n);
+//        const NodeInfo& lastSearchNode = this->backwardNodeInfos.getInfo(solution->n);
 //        const NodeInfo* iterator = &lastSearchNode;
 //        uint16_t pathId = solution->pathId;
 //        ArcId lastArcId = solution->predArcId;
@@ -46,7 +46,7 @@ struct Solution {
 //
 //        while (iterator) {
 //            path.push_back(std::make_pair(iterator->n,Info<CostType>{c1, c2}));
-//            if (iterator->n == this->backwardExpander.targetNode) {
+//            if (iterator->n == this->backwardNodeInfos.targetNode) {
 //                break;
 //            }
 //            if (lastArcId != INVALID_ARC) {
@@ -55,7 +55,7 @@ struct Solution {
 //                c1 = c1-a.c[mainOptIndex];
 //                c2 = c2-a.c[!mainOptIndex];
 //                //printf("Node: %u with costs %u %u\n", a.n, c1, c2);
-//                iterator = &this->backwardExpander.getInfo(a.n);
+//                iterator = &this->backwardNodeInfos.getInfo(a.n);
 //                lastArcId = iterator->incomingEfficientArcs[pathId];
 //                pathId = iterator->pathIds[pathId];
 //            }
@@ -70,7 +70,7 @@ struct Solution {
 //            c2 = c2+predArc->c[!mainOptIndex];
 //            path.push_back(std::make_pair(predArc->n, Info<CostType>{c1,c2}));
 //            //printf("Node: %u with costs %u %u\n", predArc->n, c1, c2);
-//            const NodeInfo& parentNodeInfo = backwardExpander.getInfo(predArc->n);
+//            const NodeInfo& parentNodeInfo = backwardNodeInfos.getInfo(predArc->n);
 //            predArc = parentNodeInfo.preprocessingParent[mainOptIndex];
 //        }
 //        for (const auto& n : path) {

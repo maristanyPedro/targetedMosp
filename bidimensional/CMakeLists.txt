@@ -14,16 +14,14 @@ if (MSVC)
     # warning level 4 and all warnings as errors
     add_compile_options(/W4 /WX)
 else()
-    # lots of warnings and all warnings as errors
-    #add_compile_options(-Wall -Wextra -pedantic -fopenmp -Wpadded)
-    #add_compile_options(-Wall -Wextra -g -pedantic -fopenmp -pthread -Wpadded)
-    add_compile_options(-std=c++14 -O3 -Winline -Wall -Wextra -pedantic -fopenmp -pthread)
+	#add_compile_options(-std=c++14 -O3 -Winline -Wall -Wextra -pedantic -fopenmp -pthread)
+    add_compile_options(-std=c++14 -Winline -Wall -Wextra -pedantic -fopenmp -pthread)
 endif()
 
 
 add_executable(bi_uni_dijkstra_bucket
-        datastructures/includes/HeapNew.h
-        datastructures/includes/Buckets_BDA.h
+        datastructures/includes/BinaryHeap.h
+        datastructures/includes/BucketsQueue.h
         datastructures/includes/Label.h
         datastructures/includes/Label_Buckets.h
         graph/includes/graph.h

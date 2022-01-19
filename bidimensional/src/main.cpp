@@ -37,35 +37,39 @@ int main(int argc, char *argv[]) {
         throw;
     }
 
-    NodeInfoContainer s_t_expander_bda(G, true);
-    NodeInfoContainer t_s_expander_bda(G, false);
+    NodeInfoContainer s_t_nic(G, true);
+    NodeInfoContainer t_s_nic(G, false);
 
-    Preprocessor preprocessor_bda(G);
-    preprocessor_bda.run(s_t_expander_bda, t_s_expander_bda);
+    Preprocessor preprocessor(G);
+    preprocessor.run(s_t_nic, t_s_nic);
 
     auto start_bda = std::chrono::high_resolution_clock::now();
 #define BUCKETS_QUEUE
 #ifdef BUCKETS_QUEUE
-    BDA<LabelBuckets, Buckets_BDA> bda_forward{false, G, s_t_expander_bda, t_s_expander_bda, preprocessor_bda};
-    BDA<LabelBuckets, Buckets_BDA> bda_backward{true, G, t_s_expander_bda, s_t_expander_bda, preprocessor_bda};
+    BDA<LabelBuckets, BucketsQueue> bda_forward{false, G, s_t_nic, t_s_nic, preprocessor};
+    BDA<LabelBuckets, BucketsQueue> bda_backward{true, G, t_s_nic, s_t_nic, preprocessor};
 #else
-    BDA<Label, BinaryHeap> bda_forward{false, G, s_t_expander_bda, t_s_expander_bda, preprocessor_bda};
-    BDA<Label, BinaryHeap> bda_backward{true, G, t_s_expander_bda, s_t_expander_bda, preprocessor_bda};
+    BDA<Label, BinaryHeap> bda_forward{false, G, s_t_nic, t_s_nic, preprocessor};
+    BDA<Label, BinaryHeap> bda_backward{true, G, t_s_nic, s_t_nic, preprocessor};
 #endif
 
     Solution sol_bda_forward{graphName, G.source, G.target};
     Solution sol_bda_backward{graphName, G.target, G.source};
-    #pragma omp parallel sections num_threads(2)
-    {
-        #pragma omp section
-        {
+    //#pragma omp parallel sections num_threads(2)
+    //{
+    //    #pragma omp section
+    //    {
             bda_forward.run(sol_bda_forward);
-        }
-        #pragma omp section
-        {
-            bda_backward.run(sol_bda_backward );
-        }
-    }
+    //    }
+    //    #pragma omp section
+    //    {
+    //        bda_backward.run(sol_bda_backward );
+    //    }
+    //}
+
+    //bda_forward.printSolutions();
+    //bda_backward.printSolutions();
+
     auto end_bda = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration_bda = end_bda - start_bda;
     Solution sol_bda_parallel{graphName, G.source, G.target};
@@ -75,7 +79,7 @@ int main(int argc, char *argv[]) {
     sol_bda_parallel.extractions = sol_bda_forward.extractions + sol_bda_backward.extractions;
 
 #ifdef BUCKETS_QUEUE
-    sol_bda_parallel.print("BBDA-bucket");
+    sol_bda_parallel.print("BDA-bucket");
 #else
     sol_bda_parallel.print("BDA-heap");
 #endif

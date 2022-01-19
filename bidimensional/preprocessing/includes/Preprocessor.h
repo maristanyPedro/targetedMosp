@@ -9,7 +9,7 @@ class NodeInfoContainer;
 class Preprocessor{
 public:
     Preprocessor() = delete;
-    Preprocessor(const Graph &G);
+    explicit Preprocessor(const Graph &G);
 
     /**
      * Runs two lexicographic Dijkstra queries and store the resultin values in the member-vectors of this class.
@@ -25,11 +25,11 @@ public:
     Info<CostType>& getUpperBounds();
 private:
     const Graph& G;
-    Info<CostType> targetUb{MAX_COST, MAX_COST};
+    Info<CostType> dominanceBound{MAX_COST, MAX_COST};
 };
 
 inline Info<CostType>& Preprocessor::getUpperBounds() {
-    return this->targetUb;
+    return this->dominanceBound;
 }
 
 

@@ -4,21 +4,34 @@
 #include "typedefs.h"
 #include "Label_Buckets.h"
 
-class Buckets_BDA
+class BucketsQueue
 {
     //typedef std::list<LabelBuckets*> BucketContent;
     //typedef std::unique_ptr<BucketContent> BucketContentPtr;
 public:
 
-    explicit Buckets_BDA(CostType fmin):
+    /**
+     * One bucket per c1 value of the considered labels. However, since buckets are emptied from left to right, many
+     * empty buckets could remain before the first one that actually contains some label. That's why at some point,
+     * the first non-empty bucket and all bucket behind it might be shifted in memory to the beginning of the 'buckets' vector.
+     *
+     * To still be able to compute the position of the bucket for a label with c1 costs as its first cost component, we
+     * need
+     *     - the 'initialBucketValue' that specifies the first c1 value that was inserted into the queue,
+     *     - the 'currentMinBucket' that specifies the c1 value of the elements in the current first bucket in the 'buckets' vector,
+     *     - the 'currentBucket' that gives the index in the current 'buckets' vector of the bucket containinig laabels whose first cost component equals c1,
+     *     - the 'cumulatedShifts' that gives the overall number of shifts done so far.
+     * @param firstC1Value
+     */
+    explicit BucketsQueue(CostType firstC1Value):
             elementsCount(0),
             currentBucket(0),
-            originalF_min{fmin},
-            f_min(fmin),
+            initialBucketValue{firstC1Value},
+            currentMinBucket(firstC1Value),
             buckets(0),
             cumulatedShifts{0} {}
 
-    ~Buckets_BDA() {
+    ~BucketsQueue() {
         this->clear();
     }
 
@@ -29,14 +42,11 @@ public:
     }
 
     inline size_t getBucketIndex(LabelBuckets* l) const {
-        return (l->c1 - f_min) + currentBucket;
+        return (l->c1 - currentMinBucket) + currentBucket;
     }
 
-
-    // add a new element to the pqueue
     void push (LabelBuckets* lb) {
-        //assert(this->elementsCount == this->manualCount());
-        unsigned int index = getBucketIndex(lb);
+        size_t index = getBucketIndex(lb);
         if (index >= buckets.size()) {
             resize(index * 1.5 + 1);
             index -= currentBucket;
@@ -51,17 +61,14 @@ public:
         this->buckets[index] = lb;
         lb->inQueue = true;
         elementsCount++;
-        //assert(this->elementsCount == this->manualCount());
-        return;
     }
 
     inline LabelBuckets* pop() {
         LabelBuckets* returnLabel{nullptr};
-        //assert(this->elementsCount == this->manualCount());
         if(!this->empty()) {
             while(this->buckets[this->currentBucket] == nullptr) {
                 this->currentBucket++;
-                this->f_min++;
+                this->currentMinBucket++;
             }
             //assert(this->countUntilIndex(this->currentBucket) == 0);
             returnLabel = this->buckets[currentBucket];
@@ -73,7 +80,6 @@ public:
             }
             --this->elementsCount;
         }
-        //assert(this->elementsCount == this->manualCount());
         return returnLabel;
     }
 
@@ -85,31 +91,8 @@ public:
         return this->elementsCount;
     }
 
-    size_t countUntilIndex(size_t index) const {
-        assert(index <= this->bucketsCount());
-        size_t counter = 0;
-        for (size_t i = 0; i < index; ++i) {
-            LabelBuckets* bucket = this->buckets[i];
-            if (bucket != nullptr) {
-                LabelBuckets* element = this->buckets[i];
-                while (element != nullptr) {
-                    ++counter;
-                    element = element->next;
-                }
-            }
-        }
-        return counter;
-    }
-
-    size_t manualCount() const {
-        return countUntilIndex(this->bucketsCount());
-    }
-
-    //FOR VECTOR IMPL.
     void resize(size_t nSize) {
         size_t oldSize = this->bucketsCount();
-        //printf("Start resize from %lu to %lu. CurrentBucket: %lu\n", oldSize, nSize, currentBucket);
-
         //First, we move all lists to the beginning of the vector to reuse the buckets that are already empty.
         if (currentBucket != 0) {
             this->cumulatedShifts += this->currentBucket;
@@ -118,12 +101,10 @@ public:
                 this->buckets[i] = nullptr;
             }
         }
-
-        //Now, we create room for new buckets. The new buckets initially contain a nullptr.
         buckets.resize(nSize, nullptr);
     }
 
-    inline void decrease_key(CostType oldBucket, LabelBuckets* updatedL) {
+    inline void decreaseKey(CostType oldBucket, LabelBuckets* updatedL) {
         assert(updatedL->inQueue);
         //assert(this->elementsCount == this->manualCount());
         LabelBuckets* prev = updatedL->prev;
@@ -132,7 +113,7 @@ public:
             prev->next = next;
         }
         else {//Element is in first position!
-            size_t indexWithoutShifts{oldBucket - this->originalF_min};
+            size_t indexWithoutShifts{oldBucket - this->initialBucketValue};
             size_t indexAfterShifts{indexWithoutShifts - this->cumulatedShifts};
             this->buckets[indexAfterShifts] = updatedL->next;
         }
@@ -154,18 +135,11 @@ public:
         return this->buckets.size();
     }
 
-//    size_t
-//    mem()
-//    {
-//        return bucketsCount*sizeof (L*)
-//               + sizeof(*this);
-//    }
-
 private:
-    unsigned int elementsCount;
-    unsigned int currentBucket;
-    const CostType originalF_min;
-    CostType f_min;
+    CostType elementsCount;
+    CostType currentBucket;
+    const CostType initialBucketValue;
+    CostType currentMinBucket;
     std::vector<LabelBuckets*> buckets;
     size_t cumulatedShifts;
 
