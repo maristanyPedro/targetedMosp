@@ -15,9 +15,9 @@
 class MDA  {
     typedef std::list<std::pair<CostArray, size_t>> CandidateLabels;
 public:
-    MDA(const Graph& G, NodeInfoContainer& expander, Preprocessor& preprocessor) :
+    MDA(const Graph& G, NodeInfoContainer& nic, Preprocessor& preprocessor) :
             G{G},
-            expander{expander},
+            nic{nic},
             upperBounds{preprocessor.getUpperBounds()} {}
 
     ~MDA() = default;
@@ -26,8 +26,8 @@ public:
         size_t extractions{0};
         size_t iterations{0};
 
-        NodeInfo &startNodeInfo = this->expander.getInfo(this->G.source);
-        NodeInfo &targetNodeInfo = this->expander.getInfo(this->G.target);
+        NodeInfo &startNodeInfo = this->nic.getInfo(this->G.source);
+        NodeInfo &targetNodeInfo = this->nic.getInfo(this->G.target);
 
         std::vector<Label> heapLabels(G.nodesCount);
         std::vector<CandidateLabels> nextCandidateLabels(G.arcsCount);
@@ -48,7 +48,7 @@ public:
             minLabel = *heap.pop();
             const Node n{minLabel.n};
             ++extractions;
-            NodeInfo &minNodeInfo = this->expander.getInfo(n);
+            NodeInfo &minNodeInfo = this->nic.getInfo(n);
             //CostArray source_n_costs = substract(minLabel.c, minNodeInfo.potential);
             minNodeInfo.efficientCosts.push_back(minLabel.c);
 
@@ -110,7 +110,7 @@ public:
             for (const Arc &a : outgoingArcs) {
                 expandedAlongArcs = add(minLabel.c, a.c);
                 const Node successorNode = a.n;
-                const NodeInfo &successorInfo{this->expander.getInfo(successorNode)};
+                const NodeInfo &successorInfo{this->nic.getInfo(successorNode)};
 
                 if (dominatedAtFront(successorInfo.efficientCosts, expandedAlongArcs)) {
                     continue;
@@ -163,7 +163,7 @@ public:
         for (const Label& solution : this->solutions.solutions) {
             std::vector<std::pair<Node, CostArray>> path;
             //From this node until the target, the path follows the preprocessing path.
-            const NodeInfo& lastSearchNode = this->expander.getInfo(solution.n);
+            const NodeInfo& lastSearchNode = this->nic.getInfo(solution.n);
             const NodeInfo* iterator = &lastSearchNode;
             uint16_t pathId = solution.pathId;
             ArcId lastArcId = solution.predArcId;
@@ -182,7 +182,7 @@ public:
                     const Arc& a{incomingArcs[lastArcId]};
                     costs = substract(costs, a.c);
                     //printf("Node: %u with costs %u %u\n", a.n, c1, c2);
-                    iterator = &this->expander.getInfo(a.n);
+                    iterator = &this->nic.getInfo(a.n);
                     lastArcId = iterator->incomingEfficientArcs[pathId];
                     pathId = iterator->pathIds[pathId];
                 }
@@ -198,7 +198,7 @@ public:
 
 private:
     const Graph& G;
-    NodeInfoContainer& expander;
+    NodeInfoContainer& nic;
     const CostArray upperBounds{0, 0, 0};
     SolutionsList solutions;
 };
