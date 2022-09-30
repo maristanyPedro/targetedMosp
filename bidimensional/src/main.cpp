@@ -29,9 +29,9 @@ int main(int argc, char *argv[]) {
     stringstream(argv[2]) >> sourceId;
     stringstream(argv[3]) >> targetId;
 
-    unique_ptr<Graph> G_ptr = setupGraph(argv[1], sourceId, targetId);
-    Graph& G = *G_ptr;
-    const string graphName{split(argv[1], '/').back()};
+	    unique_ptr<Graph> G_ptr = setupGraph(argv[1], sourceId, targetId);
+	    Graph& G = *G_ptr;
+	    const string graphName{split(argv[1], '/').back()};
 
     if (G.nodesCount < sourceId || G.nodesCount < targetId) {
         throw;

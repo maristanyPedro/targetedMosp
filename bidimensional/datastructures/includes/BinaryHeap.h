@@ -58,7 +58,6 @@ public:
         return false;
     }
 
-
     inline size_t
     size() const {
         return lastElementIndex;

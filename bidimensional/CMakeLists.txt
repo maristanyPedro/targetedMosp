@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(bi_uni_dijkstra_bucket LANGUAGES CXX)
+project(targetedBda LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -19,7 +19,7 @@ else()
 endif()
 
 
-add_executable(bi_uni_dijkstra_bucket
+add_executable(targetedBda
         datastructures/includes/BinaryHeap.h
         datastructures/includes/BucketsQueue.h
         datastructures/includes/Label.h
@@ -34,4 +34,4 @@ add_executable(bi_uni_dijkstra_bucket
         search/includes/BDA.h
         src/main.cpp
         datastructures/src/NodeInfoContainer.cpp)
-target_link_libraries(bi_uni_dijkstra_bucket PRIVATE OpenMP::OpenMP_CXX)
+target_link_libraries(targetedBda PRIVATE OpenMP::OpenMP_CXX)
