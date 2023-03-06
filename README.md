@@ -1,5 +1,8 @@
 # targetedMosp
-Implementations of the (Targeted) Multiobjective Dijkstra Algorithm developed jointly at the Zuse Institute Berlin in Germany and the Universidad de La Laguna in Spain. This repository includes variants for biobjective and multiobjective scenarios and is complementary material to the manuscript https://arxiv.org/abs/2110.10978 that shall always be cited when using these algorithms in other publications or source codes. In case you have any questions, contact Pedro Maristany de las Casas -- maristany [a t] zib.de
+Implementations of the (Targeted) Multiobjective Dijkstra Algorithm developed jointly at the Zuse Institute Berlin in Germany and the Universidad de La Laguna in Spain. This repository is complementary material to the manuscript https://arxiv.org/abs/2110.10978. In case you have any questions, contact Pedro Maristany de las Casas -- maristany [a t] zib.de
+
+# Referencing/Citing the Code
+To cite this code, please always use the permanent bibliographic information specified here: https://doi.org/10.5281/zenodo.7702018
 
 ## Disclaimer 
 We have tested the code and this manual on UNIX based systems. Some basic support can be provided if users encounter problems on these platforms. Users on Windows based systems will have to figure out how to compile and run these algorithms on their own.
