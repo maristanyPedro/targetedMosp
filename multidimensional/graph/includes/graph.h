@@ -11,17 +11,21 @@
 
 struct Arc {
     Arc() = default;
-    Arc(const Node targetId, const CostType c1, const CostType c2, const CostType c3, const ArcId id);
+    Arc(const Node targetId, const CostArray& c, const ArcId id);
 
     void operator=(const Arc& other) {
-        this->n = other.n; this->c = other.c; this->revArcIndex = other.revArcIndex; this->id = other.id;
+        this->n = other.n; 
+        this->c = other.c; 
+        
+        this->revArcIndex = other.revArcIndex; 
+        this->id = other.id;
     }
 
     void print() const;
 
     Node n{INVALID_NODE};
 
-    Info<CostType> c{MAX_COST, MAX_COST, MAX_COST};
+    CostArray c{generate()};
 
     NeighborhoodSize revArcIndex{MAX_DEGREE};
 
@@ -45,6 +49,8 @@ class NodeAdjacency {
 class Graph {
     public:
         Graph(Node nodesCount, ArcId arcsCount, Node source, Node target);
+
+        void exportGraph() const;
 
         inline const Neighborhood& outgoingArcs(const Node nodeId) const {
             return this->nodes[nodeId].outgoingArcs;
@@ -70,12 +76,17 @@ class Graph {
 
         void setNodeInfo(Node n, NeighborhoodSize inDegree, NeighborhoodSize outDegree);
 
+        inline void setName(const std::string& n) {
+            this->name = n;
+        }
+
     const Node nodesCount;
     const ArcId arcsCount;
     const Node source;
     const Node target;
 
     std::string name;
+    bool costComponentAdded{false};
 
     private: //Members
         std::vector<NodeAdjacency> nodes;

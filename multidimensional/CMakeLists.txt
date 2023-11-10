@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 set(EXEC_NAME "labelSettingMosp.o")
 project(${EXEC_NAME} LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 
 include_directories(datastructures/includes)
 include_directories(graph/includes)

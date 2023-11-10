@@ -29,7 +29,7 @@ struct Label {
         return *this;
     }
 
-    CostArray c{MAX_COST, MAX_COST, MAX_COST};
+    CostArray c{generate()};
     Node n = INVALID_NODE;
     ArcId predArcId = INVALID_ARC;
     uint32_t priority; ///< for heap operations.

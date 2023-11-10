@@ -19,41 +19,6 @@
  * See https://arxiv.org/abs/2110.10978 for details about this algorithm.
  */
 class TargetedMDA  {
-    void merge(TruncatedFront& front, const CostArray& c) {
-        if (front.empty()) {
-            front.push_back({c[1], c[2]});
-            return;
-        }
-        auto it = front.begin();
-        while (it != front.end() && (*it)[0] < c[1]) {
-            ++it;
-        }
-        it  = front.insert(it, {c[1], c[2]});
-        ++it;
-        while (it != front.end()) {
-            if (c[2] <= (*it)[1]) {
-                it = front.erase(it);
-            }
-            else {
-//                ++it;
-                break;
-            }
-        }
-    }
-
-    bool dominated(const TruncatedFront& front, const CostArray& c) {
-        if (front.empty()) {
-            return false;
-        }
-        auto it = front.begin();
-        while (it != front.end() && (*it)[0] <= c[1]) {
-            if ((*it)[1] <= c[2]) {
-                return true;
-            }
-            ++it;
-        }
-        return false;
-    }
 public:
     TargetedMDA(Graph& G, const std::vector<CostArray>& potential) :
             G{G},
@@ -78,7 +43,7 @@ public:
         BinaryHeapMosp heap = BinaryHeapMosp(1);
         heap.push(startLabel);
         heapLabels[G.source] = startLabel;
-        CostArray source_n_costs{MAX_COST, MAX_COST, MAX_COST};
+        CostArray source_n_costs{generate()};
         TruncatedFront& targetFront{this->truncatedFront[this->G.target]};
         while (heap.size()) {
             //printf("%lu\n", heap.size());
@@ -91,7 +56,7 @@ public:
             //printf("%lu;%u;%u;%u;%u\n", extractions-1, n, source_n_costs[0], source_n_costs[1], source_n_costs[2]);
 //            minNodeInfo.efficientCosts.push_back(minLabel.c);
             TruncatedFront& currentFront{this->truncatedFront[n]};
-            merge(currentFront, minLabel->c);
+            truncatedInsertionBackward(currentFront, minLabel->c);
             /////////////////////////////////////////////////////
             //////////////////////START NCL//////////////////////
             /////////////////////////////////////////////////////
@@ -105,15 +70,15 @@ public:
                     Label* l = candidateLabels.first;
                     while (l != nullptr) {
                         if (newLabel != nullptr && !lexSmaller(l->c, newLabel->c)) {
-                            if (dominates(newLabel->c, l->c)) {
+                            if (dominates(newLabel->c, l->c) || dominates(minLabel->c, l->c)) {
                                 candidateLabels.pop_front();
                                 labelsPool->free(l);
                             }
                             break;
                         }
                         if (!dominates(minLabel->c, l->c)) {
-                            if (this->sols == l->knownTargetElements || !dominated(targetFront, l->c)) {
-                                if (l->nclChecked || !dominated(currentFront, l->c)) {
+                            if (this->sols == l->knownTargetElements || !truncatedDominance(targetFront, l->c)) {
+                                if (l->nclChecked || !truncatedDominance(currentFront, l->c)) {
                                     l->nclChecked = true;
                                     l->knownTargetElements = this->sols;
                                     success = true;
@@ -165,8 +130,8 @@ public:
                     Label *successorLabel{it->second};
                     assert(successorLabel->n == successorNode);
                     if (lexSmaller(costVector, successorLabel->c)) {
-                        if (dominated(targetFront, costVector) ||
-                            dominated(truncatedFront[successorNode], costVector)) {
+                        if (truncatedDominance(targetFront, costVector) ||
+                            truncatedDominance(truncatedFront[successorNode], costVector)) {
                             continue;
                         }
                         expanded = true;
@@ -176,7 +141,7 @@ public:
                         l->update(costVector, successorNode, a.revArcIndex, predPathIndex, this->sols);
                         it->second = l;
                         heap.decreaseKey(successorLabel, l);
-                        if (costVector[1] <= successorLabel->c[1] && costVector[2] <= successorLabel->c[2]) {
+                        if (dominatesLexSmaller(costVector, successorLabel->c)) {
                             labelsPool->free(successorLabel);
                             continue;
                         }
@@ -184,7 +149,7 @@ public:
                             tailLabelCandidates.push_front(successorLabel);
                         }
                     } else {
-                        if (successorLabel->c[1] <= costVector[1] && successorLabel->c[2] <= costVector[2]) {
+                        if (dominatesLexSmaller(successorLabel->c, costVector)) {
                             continue;
                         }
                         expanded = true;
@@ -195,7 +160,7 @@ public:
                         tailLabelCandidates.push_back(l);
                     }
                 } else {
-                    if (dominated(targetFront, costVector) || dominated(truncatedFront[successorNode], costVector)) {
+                    if (truncatedDominance(targetFront, costVector) || truncatedDominance(truncatedFront[successorNode], costVector)) {
                         continue;
                     }
                     expanded = true;

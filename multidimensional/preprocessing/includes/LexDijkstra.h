@@ -139,8 +139,7 @@ public:
         auto sumCosts =
                 [&dimOrdering](const CostArray &s_t_costs, const CostArray &arcCosts) ->
                         CostArray {
-                    return CostArray{s_t_costs[0] + arcCosts[dimOrdering[0]], s_t_costs[1] + arcCosts[dimOrdering[1]],
-                                     s_t_costs[2] + arcCosts[dimOrdering[2]]};
+                    return add(s_t_costs, arcCosts, dimOrdering);
                 };
         BinaryHeapPreprocessing<LabelType> heapNew{1, dimOrdering};
         LabelType &startNode = this->tracker.getInfo(G.target);

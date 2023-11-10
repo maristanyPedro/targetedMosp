@@ -18,44 +18,54 @@
  */
 class NAMOA_LAZY  {
     bool truncatedInsertionLazy(TruncatedFront& front, const CostArray& c) {
+        TruncatedCosts tc = truncate(c);
         if (front.empty()) {
-            front.push_back({c[1], c[2]});
+            front.push_back(tc);
             return true;
         }
         auto it = front.begin();
-        while (it != front.end() && (*it)[0] <= c[1]) {
-            if ((*it)[1] <= c[2]) {
+        assert(c[1] == tc[0]);
+        //while (it != front.end() && (*it)[0] <= c[1]) {
+        while (it != front.end()) {
+            if (tc_dominates(*it, tc)) {
                 return false;
             }
-            ++it;
+            else if (lexSmaller(*it, tc)) {
+                ++it;
+            }
+            else {
+                break;
+            }
         }
-        it  = front.insert(it, {c[1], c[2]});
+        it  = front.insert(it, tc);
         ++it;
         while (it != front.end()) {
-            if (c[2] <= (*it)[1]) {
+            if (tc_dominates(tc, *it)) {
                 it = front.erase(it);
             }
             else {
-//                ++it;
-                break;
+                ++it;
+                //break;
             }
         }
         return true;
     }
 
-    bool truncatedDominance(const TruncatedFront& front, CostArray& c) const {
-        if (front.empty()) {
-            return false;
-        }
-        auto it = front.begin();
-        while (it != front.end() && (*it)[0] <= c[1]) {
-            if ((*it)[1] <= c[2]) {
-                return true;
-            }
-            ++it;
-        }
-        return false;
-    }
+    /*
+     *bool truncatedDominance(const TruncatedFront& front, CostArray& c) const {
+     *    if (front.empty()) {
+     *        return false;
+     *    }
+     *    auto it = front.begin();
+     *    while (it != front.end() && (*it)[0] <= c[1]) {
+     *        if ((*it)[1] <= c[2]) {
+     *            return true;
+     *        }
+     *        ++it;
+     *    }
+     *    return false;
+     *}
+     */
 public:
     NAMOA_LAZY(const Graph& G, const std::vector<CostArray>& potential) :
             G{G},
@@ -76,7 +86,7 @@ public:
 
         BinaryHeapMosp heap = BinaryHeapMosp(1);
         heap.push(startLabel);
-        CostArray source_n_costs{MAX_COST, MAX_COST, MAX_COST};
+        CostArray source_n_costs{generate()};
         TruncatedFront& targetFront{this->truncatedFront[this->G.target]};
         while (heap.size()) {
             //printf("%lu\n", heap.size());
@@ -103,7 +113,11 @@ public:
 //            printf("%lu %u %u %u %u | %u %u %u\n", iterations, minLabel.n, minLabel.c[0], minLabel.c[1], minLabel.c[2], source_n_costs[0], source_n_costs[1], source_n_costs[2]);
             ++iterations;
             if (n == target) {
-                //printf("Solution %u %u %u\n", minLabel->c[0], minLabel->c[1], minLabel->c[2]);
+                CostType sumOfCosts = 0;
+                for (Dimension d = 0; d < DIM; ++d) {
+                    sumOfCosts += minLabel->c[d];
+                }
+//                printf("Solution %u %u %u %u with soc %u\n", minLabel->c[0], minLabel->c[1], minLabel->c[2], minLabel->c[3], sumOfCosts);
                 solutions.solutions.push_back(minLabel);
                 ++sols;
                 continue;

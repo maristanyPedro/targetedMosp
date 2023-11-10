@@ -31,6 +31,12 @@
         unique_ptr<Graph> G_ptr = setupGraph(argv[1], sourceId, targetId);
         Graph& G = *G_ptr;
         const string graphName{split(argv[1], '/').back()};
+        G.setName(graphName);
+        if (G.costComponentAdded) {
+            G.exportGraph();
+            exit(1);
+        }
+
 
         if (G.nodesCount < sourceId || G.nodesCount < targetId) {
             throw;
@@ -48,17 +54,19 @@
             potential[n] = prepInfo.getInfo(n).potential;
         }
 
+        printf("Potential computed!\n");
+
         TargetedMDA bda{G, potential};
         Solution sol_bda_forward(graphName, sourceId, targetId);
         bda.run(sol_bda_forward);
         sol_bda_forward.print("T-MDA");
 
-        {
-            Solution sol(graphName, sourceId, targetId);
-            NAMOA namoa{G, potential};
-            namoa.run(sol);
-            sol.print("NAMOA");
-        }
+//        {
+//            Solution sol(graphName, sourceId, targetId);
+//            NAMOA namoa{G, potential};
+//            namoa.run(sol);
+//            sol.print("NAMOA");
+//        }
 
 
         {

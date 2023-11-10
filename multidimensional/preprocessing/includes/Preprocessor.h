@@ -50,7 +50,7 @@ public:
     const CostArray& getUpperBounds() const;
 private:
     const Graph& G;
-    CostArray targetUb{0, 0, 0};
+    CostArray targetUb{generate(0)};
 };
 
 inline const CostArray& Preprocessor::getUpperBounds() const {

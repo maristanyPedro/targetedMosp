@@ -13,41 +13,6 @@
 #include "SolutionsList.h"
 #include "Solution.h"
 
-void mergeAfterExtract(TruncatedFront& front, const CostArray& c) {
-    if (front.empty()) {
-        front.push_back({c[1], c[2]});
-        return;
-    }
-    auto it = front.begin();
-    while (it != front.end() && (*it)[0] < c[1]) {
-        ++it;
-    }
-    it = front.insert(it, {c[1], c[2]});
-    ++it;
-    while (it != front.end()) {
-        if (c[2] <= (*it)[1]) {
-            it = front.erase(it);
-        } else {
-//                ++it;
-            break;
-        }
-    }
-}
-
-bool truncatedDominance(const TruncatedFront& front, CostArray& c) {
-    if (front.empty()) {
-        return false;
-    }
-    auto it = front.begin();
-    while (it != front.end() && (*it)[0] <= c[1]) {
-        if ((*it)[1] <= c[2]) {
-            return true;
-        }
-        ++it;
-    }
-    return false;
-}
-
 /**
  * See https://arxiv.org/abs/2110.10978 for details about this algorithm.
  */
@@ -87,7 +52,7 @@ public:
             ++extractions;
             //printf("Extracting %u %u %u %u\n", n, minLabel->c[0], minLabel->c[1], minLabel->c[2]);
             TruncatedFront& currentFront{this->truncatedFront[n]};
-            mergeAfterExtract(currentFront, minLabel->c);
+            truncatedInsertion(currentFront, minLabel->c);
 
             //labelsPool->free(*minNodeInfo.openCosts.begin());
             OpenCosts& currentOpenCosts = this->exploredPaths[n];

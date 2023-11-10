@@ -2,17 +2,54 @@
 #include <fstream>
 #include <iterator>
 #include <sstream>
+#include <iostream>
 #include <string>
+#include <random>
+#include <filesystem>
 
 #include "../includes/graph.h"
 
 using namespace std;
+
+void Graph::exportGraph() const {
+    stringstream filenamess;
+    filenamess << std::to_string(DIM) << "d_" << this->name;
+    string filename = filenamess.str();
+    string outputDirectory = "../instances/";
+    string outputFile = outputDirectory.append(filename);
+    if (std::filesystem::exists(outputFile)) {
+        printf("File %s, a %u dimensional version of your input file already exists. Please call the program using this file as input.\n",
+               outputFile.c_str(), DIM);
+        exit(1);
+    }
+    printf("Your instance file does not match the compile dimension DIM. I will generate the file %s and abort this run. Use the new file as input.\n", outputFile.c_str());
+    ofstream outputfile(outputFile);
+    string headerLine = "p sp " + std::to_string(this->nodesCount) + " " + std::to_string(this->arcsCount) + "\n";
+    outputfile << headerLine;
+    for (Node n = 0; n < this->nodesCount; ++n) {
+        for (const Arc& arc : this->outgoingArcs(n)) {
+            string arcLine = "a " + std::to_string(n) + " " + std::to_string(arc.n);
+            for (Dimension d = 0; d < DIM; ++d) {
+                arcLine.append(" ");
+                arcLine.append(std::to_string(arc.c[d]));
+            }
+            arcLine.append("\n");
+            outputfile << arcLine;
+        }
+    }
+    outputfile.close();
+}
 
 unique_ptr<Graph> setupGraph(const string& filename, Node sourceId, Node targetId) {
     assert (sourceId != INVALID_NODE && targetId != INVALID_NODE);
     ifstream infile(filename);
     string line;
     size_t nodesCount =0, arcsCount = 0;
+#ifdef GENERATE_MISSING_COST_COMPONENTS_UNIF_RANDOM
+    std::random_device rd; // obtain a random number from hardware
+    std::mt19937 gen(rd()); // seed the generator
+    std::uniform_int_distribution<> distr(1, 10); // define the range
+#endif
     //Parse file until information about number of nodes and number of arcs is reached.
     while (getline(infile, line)) {
         vector<string> splittedLine{split(line, ' ')};
@@ -30,6 +67,7 @@ unique_ptr<Graph> setupGraph(const string& filename, Node sourceId, Node targetI
     std::vector<NeighborhoodSize> outDegree(nodesCount, 0);
     size_t addedArcs = 0;
     std::vector<std::pair<Node,Arc>> arcs(arcsCount);
+    bool costComponentsGenerated = false;
     while (getline(infile, line)) {
         vector<string> splittedLine{split(line, ' ')};
         if (splittedLine[0] == "a") {
@@ -43,17 +81,31 @@ unique_ptr<Graph> setupGraph(const string& filename, Node sourceId, Node targetI
             assert(outDegree[tailId] != MAX_DEGREE);
             ++inDegree[headId];
             assert(inDegree[headId] != MAX_DEGREE);
-            if(splittedLine.size() == 5) {
-                arcs[addedArcs] = make_pair(tailId, Arc(headId, stoi(splittedLine[3]), stoi(splittedLine[4]), 1, addedArcs));
+            CostArray arcCost = generate();
+            size_t costComponent;
+            for (costComponent = 0; costComponent + 3 < splittedLine.size(); ++costComponent) {
+                arcCost[costComponent] = stoi(splittedLine[3 + costComponent]);
             }
-            else {
-                arcs[addedArcs] = make_pair(tailId, Arc(headId, stoi(splittedLine[3]), stoi(splittedLine[4]), stoi(splittedLine[5]), addedArcs));
+            if (costComponent < DIM) {
+                costComponentsGenerated = true;
             }
+            while (costComponent < DIM) {
+                assert(arcCost[costComponent] == MAX_COST);
+#ifdef GENERATE_MISSING_COST_COMPONENTS_UNIF_RANDOM
+                arcCost[costComponent] = distr(gen);
+#else
+                arcCost[costComponent] = 1;
+#endif
+                ++costComponent;
+            }
+            arcs[addedArcs] = make_pair(tailId, Arc(headId, arcCost, addedArcs));
             ++addedArcs;
         }
     }
+    printf("Finish adding arcs!\n");
     assert(addedArcs == arcsCount);
     unique_ptr<Graph> G = make_unique<Graph>(nodesCount, arcsCount, sourceId, targetId);
+    G->costComponentAdded = costComponentsGenerated;
     for (Node i = 0; i < nodesCount; ++i) {
         G->setNodeInfo(i, inDegree[i], outDegree[i]);
     }
@@ -101,8 +153,8 @@ void Graph::printArcs(const Neighborhood & arcs) {
     }
 }
 
-Arc::Arc(const Node targetId, const CostType c1, const CostType c2, const CostType c3, const ArcId id):
-        n{targetId}, c{c1, c2, c3}, id{id} {}
+Arc::Arc(const Node targetId, const CostArray& cArray, const ArcId id):
+        n{targetId}, c{cArray}, id{id} {}
 
 
 void Arc::print() const {
