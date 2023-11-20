@@ -5,13 +5,15 @@
     #include <sstream>
     #include <cinttypes>
 
+    #include <valgrind/callgrind.h>
+
     #include "../datastructures/includes/NodeInfoContainer.h"
     #include "../datastructures/includes/NodeInfo.h"
 
     #include "../preprocessing/includes/Preprocessor.h"
     #include "../search/includes/MDA-Star.h"
-    #include "../search/includes/NAMOA.h"
-    #include "../search/includes/NAMOA_lazy.h"
+    //#include "../search/includes/NAMOA.h"
+    //#include "../search/includes/NAMOA_lazy.h"
 
     using namespace std;
 
@@ -58,7 +60,10 @@
 
         TargetedMDA bda{G, potential};
         Solution sol_bda_forward(graphName, sourceId, targetId);
+        //CALLGRIND_START_INSTRUMENTATION;
         bda.run(sol_bda_forward);
+        //CALLGRIND_STOP_INSTRUMENTATION;
+        //CALLGRIND_DUMP_STATS;
         sol_bda_forward.print("T-MDA");
 
 //        {
@@ -69,12 +74,12 @@
 //        }
 
 
-        {
-            Solution sol(graphName, sourceId, targetId);
-            NAMOA_LAZY namoa{G, potential};
-            namoa.run(sol);
-            sol.print("NAMOA_LAZY");
-        }
+//        {
+//            Solution sol(graphName, sourceId, targetId);
+//            NAMOA_LAZY namoa{G, potential};
+//            namoa.run(sol);
+//            sol.print("NAMOA_LAZY");
+//        }
 
         //assert(namoa_solutions == mda_solutions);
     }

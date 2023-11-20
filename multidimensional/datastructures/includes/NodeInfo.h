@@ -10,13 +10,14 @@ struct NodeInfo {
     //A dxd matrix storing the results of the d preprocessing lexicographic searches.
     Info<CostArray> preprocessingResult;
     //Computed during preprocessing. This is a lowerbound from the current node to the target node w.r.t. every cost dimension.
-    CostArray potential{MAX_COST, MAX_COST, MAX_COST};
+    CostArray potential{generate(MAX_COST)};
     //Current node for which 'this' stored information.
     Node n{INVALID_NODE};
     Info<uint32_t> priority; ///< for heap operations in preprocessing!
     //Used in preprocessing to flag if the node has been reached by the lex searches. The ith entry of the vector specifies
     //whether the node has been reached by a lex. search in which the ith cost component was the main optimization component.
-    Info<bool> reached{false, false, false};
+    Info<bool> reached;
+
 
     NodeInfo() {
         for (size_t i = 0; i < DIM; ++i) {
@@ -24,6 +25,7 @@ struct NodeInfo {
                 preprocessingResult[i][j] = MAX_COST;
             }
         }
+        std::fill(reached.begin(), reached.end(), false);
     }
 
     inline void updatePreprocessingInfo(const DimensionsVector& dimOrdering, CostArray c) {

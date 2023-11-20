@@ -10,13 +10,14 @@ struct Label {
     Label(CostArray& c, Node n, ArcId a, uint16_t p):
         c{c}, n{n}, predArcId{a}, priority{0}, pathId{p} {}
 
-    inline void update(const CostArray& cNew, Node n , ArcId predArc, uint16_t pathId, uint16_t targetFrontSize) {
+    inline void update(const CostArray& cNew, Node n , ArcId predArc, uint16_t pathId, uint16_t targetFrontSize, uint16_t permanents) {
         //assert(pathId <= std::numeric_limits<u_int16_t>::max());
         this->c = cNew;
         this->n = n;
         this->predArcId = predArc;
         this->pathId = pathId;
         this->knownTargetElements = targetFrontSize;
+        this->knownPermanentElements = permanents;
         this->nclChecked = false;
     }
 
@@ -35,6 +36,7 @@ struct Label {
     uint32_t priority; ///< for heap operations.
     uint16_t pathId = std::numeric_limits<uint16_t>::max();
     uint16_t knownTargetElements{0};
+    uint16_t knownPermanentElements{0};
     Label* next{nullptr};
     bool nclChecked{false};
 };

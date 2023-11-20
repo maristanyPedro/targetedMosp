@@ -19,8 +19,8 @@ typedef uint32_t ArcId;
 typedef uint32_t CostType;
 typedef u_short Dimension;
 
-#define GENERATE_MISSING_COST_COMPONENTS_UNIF_RANDOM
-constexpr Dimension DIM = 4;
+//#define GENERATE_MISSING_COST_COMPONENTS_UNIF_RANDOM
+constexpr Dimension DIM = 3;
 
 constexpr Node INVALID_NODE = std::numeric_limits<Node>::max();
 constexpr NeighborhoodSize MAX_DEGREE = std::numeric_limits<NeighborhoodSize>::max();
@@ -133,7 +133,7 @@ inline void truncatedInsertionBackward(TruncatedFront& front, const CostArray& c
 }
 
 
-inline void truncatedInsertion(TruncatedFront& front, const CostArray& c) {
+inline void truncatedInsertion3d(TruncatedFront& front, const CostArray& c) {
     TruncatedCosts tc = truncate(c);
     if (front.empty()) {
         front.push_back(tc);
@@ -149,9 +149,34 @@ inline void truncatedInsertion(TruncatedFront& front, const CostArray& c) {
         if (tc_dominates(tc, *it)) {
             it = front.erase(it);
         } else {
-            ++it;
+            //++it;
+            break;
         }
     }
+}
+
+inline void truncatedInsertion(TruncatedFront& front, const CostArray& c) {
+    DIM == 3? truncatedInsertion3d(front, c) : truncatedInsertionBackward(front, c);
+}
+
+inline std::pair<bool, size_t> lexSmallerOrEquivCounter(const TruncatedCosts& lh, const CostArray& rh) {
+    size_t counter = 0;
+    for (size_t i = 0; i < DIM-1; ++i) {
+        if (lh[i] < rh[i+1]) {
+            ++counter;
+            return {true, counter};
+        }
+        else if (lh[i] == rh[i+1]) {
+            ++counter;
+            continue;
+        }
+        else {
+            counter += 2;
+            return {false, counter};
+        }
+    }
+    //Happens if both arrays coincide.
+    return {true, counter};
 }
 
 inline bool lexSmallerOrEquiv(const TruncatedCosts& lh, const CostArray& rh) {

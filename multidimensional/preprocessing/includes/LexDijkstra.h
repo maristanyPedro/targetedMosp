@@ -143,9 +143,9 @@ public:
                 };
         BinaryHeapPreprocessing<LabelType> heapNew{1, dimOrdering};
         LabelType &startNode = this->tracker.getInfo(G.target);
-        startNode.preprocessingResult[dimOrdering[0]] = {0, 0, 0};
+        startNode.preprocessingResult[dimOrdering[0]] = {generate(0)};
         LabelType &targetNode = this->tracker.getInfo(G.source);
-        CostArray targetCosts{MAX_COST, MAX_COST, MAX_COST};
+        CostArray targetCosts{generate(MAX_COST)};
 
         heapNew.push(&startNode);
         while (heapNew.size()) {

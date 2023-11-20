@@ -11,7 +11,7 @@ class Permanents;
 class SolutionsList {
 
 public:
-    std::list<Label*> solutions;
+    std::vector<Label*> solutions;
 
     void printSolutions(const Graph& G, const Permanents& permanents) const;
 };
