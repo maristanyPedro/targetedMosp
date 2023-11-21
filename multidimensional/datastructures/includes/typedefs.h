@@ -17,7 +17,7 @@ typedef uint32_t Node;
 typedef uint16_t NeighborhoodSize;
 typedef uint32_t ArcId;
 typedef uint32_t CostType;
-typedef u_short Dimension;
+typedef short Dimension;
 
 //#define GENERATE_MISSING_COST_COMPONENTS_UNIF_RANDOM
 constexpr Dimension DIM = 3;

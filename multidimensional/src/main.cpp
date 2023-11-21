@@ -5,7 +5,7 @@
     #include <sstream>
     #include <cinttypes>
 
-    #include <valgrind/callgrind.h>
+    //#include <valgrind/callgrind.h>
 
     #include "../datastructures/includes/NodeInfoContainer.h"
     #include "../datastructures/includes/NodeInfo.h"

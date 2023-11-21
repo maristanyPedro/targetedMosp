@@ -17,11 +17,11 @@ void Graph::exportGraph() const {
     string filename = filenamess.str();
     string outputDirectory = "../instances/";
     string outputFile = outputDirectory.append(filename);
-    if (std::filesystem::exists(outputFile)) {
-        printf("File %s, a %u dimensional version of your input file already exists. Please call the program using this file as input.\n",
-               outputFile.c_str(), DIM);
-        exit(1);
-    }
+//    if (std::filesystem::exists(outputFile)) {
+//        printf("File %s, a %u dimensional version of your input file already exists. Please call the program using this file as input.\n",
+//               outputFile.c_str(), DIM);
+//        exit(1);
+//    }
     printf("Your instance file does not match the compile dimension DIM. I will generate the file %s and abort this run. Use the new file as input.\n", outputFile.c_str());
     ofstream outputfile(outputFile);
     string headerLine = "p sp " + std::to_string(this->nodesCount) + " " + std::to_string(this->arcsCount) + "\n";

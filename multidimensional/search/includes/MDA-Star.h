@@ -230,6 +230,7 @@ public:
         solutionData.solutionsCt = solutions.solutions.size();
         solutionData.memoryConsumption = this->memory(maxHeapLabelsSize, labelsPool->size());
         solutionData.maxHeapSize = heap.maxSize();
+        printf("Decrease key: %lu\n", heap.decreaseKeyCounter);
     }
 
     size_t memory(size_t maxHeapSize, size_t labelsPoolSize) const {

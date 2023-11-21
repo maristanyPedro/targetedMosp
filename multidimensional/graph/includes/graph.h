@@ -13,13 +13,13 @@ struct Arc {
     Arc() = default;
     Arc(const Node targetId, const CostArray& c, const ArcId id);
 
-    void operator=(const Arc& other) {
-        this->n = other.n; 
-        this->c = other.c; 
-        
-        this->revArcIndex = other.revArcIndex; 
-        this->id = other.id;
-    }
+//    void operator=(const Arc& other) {
+//        this->n = other.n;
+//        this->c = other.c;
+//
+//        this->revArcIndex = other.revArcIndex;
+//        this->id = other.id;
+//    }
 
     void print() const;
 
