@@ -17,7 +17,7 @@
  * See https://arxiv.org/abs/2110.10978 for details about this algorithm.
  */
 class NAMOA_LAZY  {
-    bool truncatedInsertionLazy(TruncatedFront& front, const CostArray& c) {
+    static bool truncatedInsertionLazy(TruncatedFront& front, const CostArray& c) {
         TruncatedCosts tc = truncate(c);
         if (front.empty()) {
             front.push_back(tc);
@@ -44,8 +44,12 @@ class NAMOA_LAZY  {
                 it = front.erase(it);
             }
             else {
-                ++it;
-                //break;
+                if(DIM > 3) {
+                    ++it;
+                }
+                else {
+                    break;
+                }
             }
         }
         return true;
@@ -82,7 +86,7 @@ public:
         Pool<Label>* labelsPool = new Pool<Label>();
 
         Label* startLabel = labelsPool->newItem();
-        startLabel->update(potential[G.source], G.source, INVALID_ARC, MAX_PATH, 0);
+        startLabel->update(potential[G.source], G.source, INVALID_ARC, MAX_PATH, 0, 0);
 
         BinaryHeapMosp heap = BinaryHeapMosp(1);
         heap.push(startLabel);
@@ -113,10 +117,6 @@ public:
 //            printf("%lu %u %u %u %u | %u %u %u\n", iterations, minLabel.n, minLabel.c[0], minLabel.c[1], minLabel.c[2], source_n_costs[0], source_n_costs[1], source_n_costs[2]);
             ++iterations;
             if (n == target) {
-                CostType sumOfCosts = 0;
-                for (Dimension d = 0; d < DIM; ++d) {
-                    sumOfCosts += minLabel->c[d];
-                }
 //                printf("Solution %u %u %u %u with soc %u\n", minLabel->c[0], minLabel->c[1], minLabel->c[2], minLabel->c[3], sumOfCosts);
                 solutions.solutions.push_back(minLabel);
                 ++sols;
@@ -141,7 +141,7 @@ public:
                 expanded = true;
                 //Label *successorLabel{&heapLabels[successorNode]};
                 Label* newLabel = labelsPool->newItem();
-                newLabel->update(costVector, successorNode, a.revArcIndex, predPathIndex, this->sols);
+                newLabel->update(costVector, successorNode, a.revArcIndex, predPathIndex, this->sols, 0);
                 heap.push(newLabel);
             }
             if (expanded) {

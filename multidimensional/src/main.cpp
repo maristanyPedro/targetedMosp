@@ -13,13 +13,13 @@
     #include "../preprocessing/includes/Preprocessor.h"
     #include "../search/includes/MDA-Star.h"
     //#include "../search/includes/NAMOA.h"
-    //#include "../search/includes/NAMOA_lazy.h"
+    #include "../search/includes/NAMOA_lazy.h"
 
     using namespace std;
 
     int main(int argc, char *argv[]) {
-        if (argc != 4) {
-            printf("The program is meant to receive three arguments: file-directory, id of the source node, and id of the target node.\n");
+        if (argc != 5) {
+            printf("The program is meant to receive three arguments: file-directory, id of the source node, id of the target node, and the algorithm to be ran.\n");
             exit(1);
         }
 
@@ -29,6 +29,8 @@
         Node targetId = INVALID_NODE;
         stringstream(argv[2]) >> sourceId;
         stringstream(argv[3]) >> targetId;
+
+        string algo = stringstream(argv[4]).str();
 
         unique_ptr<Graph> G_ptr = setupGraph(argv[1], sourceId, targetId);
         Graph& G = *G_ptr;
@@ -58,28 +60,27 @@
 
         printf("Potential computed!\n");
 
-        TargetedMDA bda{G, potential};
-        Solution sol_bda_forward(graphName, sourceId, targetId);
-        //CALLGRIND_START_INSTRUMENTATION;
-        bda.run(sol_bda_forward);
-        //CALLGRIND_STOP_INSTRUMENTATION;
-        //CALLGRIND_DUMP_STATS;
-        sol_bda_forward.print("T-MDA");
+        if (algo == "MDA") {
+            TargetedMDA bda{G, potential};
+            Solution sol_bda_forward(graphName, sourceId, targetId);
+            //CALLGRIND_START_INSTRUMENTATION;
+            bda.run(sol_bda_forward);
+            //CALLGRIND_STOP_INSTRUMENTATION;
+            //CALLGRIND_DUMP_STATS;
+            sol_bda_forward.print("T-MDA");
+        }
+        else if (algo == "NAMOA") {
+            Solution sol(graphName, sourceId, targetId);
+            NAMOA_LAZY namoa{G, potential};
+            namoa.run(sol);
+            sol.print("NAMOA_LAZY");
+        }
 
-//        {
+        //        {
 //            Solution sol(graphName, sourceId, targetId);
 //            NAMOA namoa{G, potential};
 //            namoa.run(sol);
 //            sol.print("NAMOA");
 //        }
-
-
-//        {
-//            Solution sol(graphName, sourceId, targetId);
-//            NAMOA_LAZY namoa{G, potential};
-//            namoa.run(sol);
-//            sol.print("NAMOA_LAZY");
-//        }
-
         //assert(namoa_solutions == mda_solutions);
     }
