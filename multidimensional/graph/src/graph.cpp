@@ -102,7 +102,6 @@ unique_ptr<Graph> setupGraph(const string& filename, Node sourceId, Node targetI
             ++addedArcs;
         }
     }
-    printf("Finish adding arcs!\n");
     assert(addedArcs == arcsCount);
     unique_ptr<Graph> G = make_unique<Graph>(nodesCount, arcsCount, sourceId, targetId);
     G->costComponentAdded = costComponentsGenerated;

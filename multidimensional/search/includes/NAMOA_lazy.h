@@ -55,21 +55,6 @@ class NAMOA_LAZY  {
         return true;
     }
 
-    /*
-     *bool truncatedDominance(const TruncatedFront& front, CostArray& c) const {
-     *    if (front.empty()) {
-     *        return false;
-     *    }
-     *    auto it = front.begin();
-     *    while (it != front.end() && (*it)[0] <= c[1]) {
-     *        if ((*it)[1] <= c[2]) {
-     *            return true;
-     *        }
-     *        ++it;
-     *    }
-     *    return false;
-     *}
-     */
 public:
     NAMOA_LAZY(const Graph& G, const std::vector<CostArray>& potential) :
             G{G},

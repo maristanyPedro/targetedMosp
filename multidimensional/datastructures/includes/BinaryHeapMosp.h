@@ -18,7 +18,6 @@ public:
     }
 
     void decreaseKey(Label *lOld, Label* lNew) {
-        ++decreaseKeyCounter;
         lNew->priority = lOld->priority;
         heapElements[lNew->priority] = lNew;
         up(lNew->priority);
@@ -67,8 +66,6 @@ private:
     LexComparison comparator;
     size_t elemCount;
     size_t maxElemCount;
-public:
-    size_t decreaseKeyCounter{0};
 private:
 
     void up(size_t index) {

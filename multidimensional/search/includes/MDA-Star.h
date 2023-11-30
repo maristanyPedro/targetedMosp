@@ -29,29 +29,10 @@ public:
             nextCandidateLabels(G.arcsCount),
             permanentLabels() {}
 
-    bool targetDominance(const Label* l) const {
-        for (size_t i = l->knownTargetElements; i < this->targetFrontFull.size(); ++i) {
-            const CostArray& frontElement{targetFrontFull[i]};
-            bool dominated = true;
-            for (Dimension d = 1; d < DIM; ++d) {
-                if (frontElement[d] > l->c[d]) {
-                    dominated = false;
-                    break;
-                }
-            }
-            if (dominated) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     inline bool dominatedAtTarget(Label* l) {
         if (this->sols == l->knownTargetElements) {
             return false;
-        }
-        if (l->knownTargetElements > 0) {
-            return targetDominance(l);
         }
         else {
             bool dominated = truncatedDominance(targetFront, l->c);
@@ -214,7 +195,6 @@ public:
             if (n == target) {
                 //printf("Solution %u %u %u\n", minLabel->c[0], minLabel->c[1], minLabel->c[2]);
                 solutions.solutions.push_back(minLabel);
-                targetFrontFull.push_back(minLabel->c);
                 ++sols;
                 continue;
             }
@@ -230,7 +210,6 @@ public:
         solutionData.solutionsCt = solutions.solutions.size();
         solutionData.memoryConsumption = this->memory(maxHeapLabelsSize, labelsPool->size());
         solutionData.maxHeapSize = heap.maxSize();
-        printf("Decrease key: %lu\n", heap.decreaseKeyCounter);
     }
 
     size_t memory(size_t maxHeapSize, size_t labelsPoolSize) const {
@@ -245,7 +224,6 @@ private:
     Graph& G;
     std::vector<TruncatedFront> truncatedFront;
     TruncatedFront& targetFront;
-    std::vector<CostArray> targetFrontFull;
     std::vector<uint32_t> permanentCounter;
     const std::vector<CostArray>& potential;
     std::vector<List> nextCandidateLabels;

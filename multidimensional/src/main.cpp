@@ -58,8 +58,6 @@
             potential[n] = prepInfo.getInfo(n).potential;
         }
 
-        printf("Potential computed!\n");
-
         if (algo == "MDA") {
             TargetedMDA bda{G, potential};
             Solution sol_bda_forward(graphName, sourceId, targetId);
